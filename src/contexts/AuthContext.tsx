@@ -49,18 +49,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       };
     };
 
-    const cleanup = initializeAuth();
+    const unsubscribe = initializeAuth();
     
     return () => {
-      // Handle the case where cleanup is a Promise
-      if (cleanup instanceof Promise) {
-        cleanup.then(unsubscribe => {
-          if (typeof unsubscribe === 'function') {
-            unsubscribe();
+      if (unsubscribe instanceof Promise) {
+        unsubscribe.then((cleanup) => {
+          if (typeof cleanup === 'function') {
+            cleanup();
           }
         });
-      } else if (typeof cleanup === 'function') {
-        cleanup();
       }
     };
   }, []);
