@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
@@ -12,7 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
-import { PlusCircle, Trash2, Copy, ExternalLink, FileCode } from "lucide-react";
+import { PlusCircle, Trash2, Copy, ExternalLink, FileCode, Code } from "lucide-react";
 
 interface ContentRule {
   id: string;
@@ -34,7 +33,6 @@ const Index = () => {
   const [scriptUrl, setScriptUrl] = useState<string>("");
   const [isUploadingScript, setIsUploadingScript] = useState(false);
   
-  // Form state for new rule
   const [newRule, setNewRule] = useState<Omit<ContentRule, 'id' | 'created_at' | 'updated_at'>>({
     name: "",
     description: "",
@@ -45,7 +43,6 @@ const Index = () => {
     active: true
   });
 
-  // Fetch rules on component mount
   useEffect(() => {
     fetchRules();
     checkScriptExists();
@@ -100,11 +97,9 @@ const Index = () => {
     try {
       setIsUploadingScript(true);
       
-      // Fetch the script content
       const response = await fetch('/src/scripts/utm-magic.js');
       const scriptContent = await response.text();
       
-      // Upload to Supabase storage
       const { error } = await supabase
         .storage
         .from('scripts')
@@ -115,7 +110,6 @@ const Index = () => {
       
       if (error) throw error;
       
-      // Get the public URL
       const { data: urlData } = await supabase
         .storage
         .from('scripts')
@@ -159,7 +153,6 @@ const Index = () => {
       
       setRules([data[0], ...rules]);
       
-      // Reset form
       setNewRule({
         name: "",
         description: "",
@@ -274,7 +267,6 @@ const Index = () => {
                 <CardContent className="flex flex-col items-center justify-center py-12">
                   <p className="text-lg text-gray-500 mb-4">No content rules found</p>
                   <Button onClick={() => {
-                    // Fix: Cast to HTMLElement to use click method
                     const element = document.querySelector('[data-value="create"]');
                     if (element) {
                       (element as HTMLElement).click();
@@ -519,20 +511,49 @@ const Index = () => {
                       </div>
                     </div>
                     
-                    <div className="rounded-md bg-blue-50 p-4">
-                      <div className="flex">
-                        <div className="flex-shrink-0">
-                          <ExternalLink className="h-5 w-5 text-blue-400" />
+                    <div className="space-y-4">
+                      <div className="rounded-md bg-blue-50 p-4">
+                        <div className="flex">
+                          <div className="flex-shrink-0">
+                            <ExternalLink className="h-5 w-5 text-blue-400" />
+                          </div>
+                          <div className="ml-3">
+                            <h3 className="text-sm font-medium text-blue-800">Testing your integration</h3>
+                            <div className="mt-2 text-sm text-blue-700">
+                              <p>
+                                Test your rules by appending UTM parameters to your URL:
+                                <br />
+                                <code className="bg-blue-100 px-1 py-0.5 rounded text-xs">
+                                  ?utm_source=test&utm_medium=demo
+                                </code>
+                              </p>
+                            </div>
+                          </div>
                         </div>
-                        <div className="ml-3">
-                          <h3 className="text-sm font-medium text-blue-800">Testing your integration</h3>
-                          <div className="mt-2 text-sm text-blue-700">
-                            <p>
-                              Test your rules by appending UTM parameters to your URL:
-                              <br />
-                              <code className="bg-blue-100 px-1 py-0.5 rounded text-xs">
-                                ?utm_source=test&utm_medium=demo
-                              </code>
+                      </div>
+                      
+                      <Separator />
+                      
+                      <div>
+                        <h3 className="text-lg font-medium mb-2">Webflow Integration</h3>
+                        <div className="space-y-3">
+                          <p className="text-sm text-gray-600">
+                            To add UTM Content Magic to your Webflow site:
+                          </p>
+                          
+                          <div className="bg-gray-50 dark:bg-gray-900 p-3 rounded-md border">
+                            <ol className="list-decimal ml-5 space-y-2 text-sm">
+                              <li>Go to your Webflow project dashboard</li>
+                              <li>Navigate to <strong>Project Settings</strong> → <strong>Custom Code</strong></li>
+                              <li>In the <strong>Footer Code</strong> section, paste the script tag shown above</li>
+                              <li>Save and publish your site</li>
+                            </ol>
+                          </div>
+                          
+                          <div className="flex items-center p-3 bg-amber-50 border border-amber-200 rounded-md">
+                            <Code className="h-5 w-5 text-amber-500 mr-2 flex-shrink-0" />
+                            <p className="text-sm text-amber-800">
+                              Make sure to publish your Webflow site after adding the script for changes to take effect.
                             </p>
                           </div>
                         </div>
