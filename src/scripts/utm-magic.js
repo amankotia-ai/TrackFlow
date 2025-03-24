@@ -24,12 +24,31 @@
     return params;
   };
   
+  // Function to check if a rule's conditions match the UTM parameters
+  const matchesCondition = (rule, params) => {
+    if (!rule || !rule.condition_type || !rule.condition_value) return false;
+    
+    // Get the UTM parameter that corresponds to the rule's condition type
+    const utmValue = params[rule.condition_type];
+    
+    // Rule matches only if the UTM parameter exists and matches the condition value
+    return utmValue && utmValue === rule.condition_value;
+  };
+  
   // Function to apply content rules
-  const applyContentRules = (rules) => {
+  const applyContentRules = (rules, params) => {
     if (!rules || !rules.length) return;
     
     rules.forEach(rule => {
       try {
+        // First check if the rule's condition matches the UTM parameters
+        if (!matchesCondition(rule, params)) {
+          console.log(`UTM Content Magic: Rule "${rule.name}" condition does not match current UTM parameters`);
+          return;
+        }
+        
+        console.log(`UTM Content Magic: Rule "${rule.name}" matched condition ${rule.condition_type}=${rule.condition_value}`);
+        
         const elements = document.querySelectorAll(rule.selector);
         if (!elements.length) {
           console.log(`UTM Content Magic: No elements found for selector "${rule.selector}"`);
@@ -76,7 +95,7 @@
       console.log('UTM Content Magic: Received data:', data);
       
       if (data.rules && data.rules.length > 0) {
-        applyContentRules(data.rules);
+        applyContentRules(data.rules, params);
       } else {
         console.log('UTM Content Magic: No matching rules found');
       }

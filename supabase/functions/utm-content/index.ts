@@ -25,13 +25,7 @@ serve(async (req) => {
     const params = Object.fromEntries(url.searchParams.entries());
     console.log("URL Parameters:", params);
 
-    // Build the query
-    let query = supabaseAdmin
-      .from("content_rules")
-      .select("*")
-      .eq("active", true);
-
-    // Filter based on UTM parameters
+    // Extract UTM parameters
     const utmParams = {
       utm_source: params.utm_source,
       utm_medium: params.utm_medium,
@@ -42,17 +36,36 @@ serve(async (req) => {
 
     console.log("UTM Parameters:", utmParams);
 
-    // Create a logical OR for each UTM parameter that matches the condition type and value
+    // Only get active rules
+    let query = supabaseAdmin
+      .from("content_rules")
+      .select("*")
+      .eq("active", true);
+
+    // Build a more strict filter that requires the condition_type and condition_value to match
     const filters = [];
     
     for (const [key, value] of Object.entries(utmParams)) {
       if (value) {
+        // This creates a condition like:
+        // condition_type = 'utm_source' AND condition_value = 'google'
         filters.push(`and(condition_type.eq.${key},condition_value.eq.${value})`);
       }
     }
 
     if (filters.length > 0) {
       query = query.or(filters.join(","));
+    } else {
+      // If no UTM parameters are provided, return no rules
+      return new Response(
+        JSON.stringify({ rules: [] }),
+        { 
+          headers: { 
+            "Content-Type": "application/json",
+            ...corsHeaders 
+          } 
+        }
+      );
     }
 
     // Execute the query

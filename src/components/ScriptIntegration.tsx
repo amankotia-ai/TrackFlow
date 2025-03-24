@@ -79,21 +79,18 @@ const ScriptIntegration: React.FC = () => {
   };
 
   const generateScriptContent = () => {
-    // Get the project details in a safe way without accessing protected properties
-    const apiUrl = supabase.getUrl().replace('/rest/v1', '');
+    // Get the Supabase URL and project ID safely
+    const apiUrl = supabase.getRealtimeUrl().replace('/realtime/v1', '');
     const projectId = apiUrl.split('//')[1].split('.')[0];
     
-    // Get the anon key via the authorization header that's already set up
-    const anonKey = supabase.supabaseUrl.includes('localhost') 
-      ? 'SUPABASE_KEY' // For development
-      : process.env.REACT_APP_SUPABASE_ANON_KEY || 'SUPABASE_KEY'; // For production
+    // We don't need the anon key in the client script as we'll use public functions
     
     return `
 // UTM Content Magic Script (v1.0)
 (function() {
   const PROJECT_ID = "${projectId}";
-  const ANON_KEY = "${anonKey}";
   
+  // Function to get URL parameters
   const getUrlParams = () => {
     const params = {};
     window.location.search.replace(/[?&]+([^=&]+)=([^&]*)/gi, function(_, key, value) {
@@ -102,13 +99,30 @@ const ScriptIntegration: React.FC = () => {
     return params;
   };
   
-  const applyContentRules = (rules) => {
+  // Function to check if a rule's conditions match the UTM parameters
+  const matchesCondition = (rule, params) => {
+    if (!rule || !rule.condition_type || !rule.condition_value) return false;
+    const utmValue = params[rule.condition_type];
+    return utmValue && utmValue === rule.condition_value;
+  };
+  
+  // Function to apply content rules
+  const applyContentRules = (rules, params) => {
     if (!rules || !rules.length) return;
     
-    console.log('UTM Content Magic: Applying rules:', rules);
+    console.log('UTM Content Magic: Found potential rules:', rules);
+    let appliedRules = 0;
     
     rules.forEach(rule => {
       try {
+        // First check if the rule's condition matches the UTM parameters
+        if (!matchesCondition(rule, params)) {
+          console.log(\`UTM Content Magic: Rule "\${rule.name}" condition does not match current UTM parameters\`);
+          return;
+        }
+        
+        console.log(\`UTM Content Magic: Rule "\${rule.name}" matched condition \${rule.condition_type}=\${rule.condition_value}\`);
+        
         const elements = document.querySelectorAll(rule.selector);
         if (!elements.length) {
           console.log(\`UTM Content Magic: No elements found for selector "\${rule.selector}"\`);
@@ -118,13 +132,17 @@ const ScriptIntegration: React.FC = () => {
         elements.forEach(element => {
           element.innerHTML = rule.replacement_content;
           console.log(\`UTM Content Magic: Replaced content for \${rule.selector}\`);
+          appliedRules++;
         });
       } catch (error) {
         console.error(\`UTM Content Magic: Error applying rule for selector "\${rule.selector}":\`, error);
       }
     });
+    
+    console.log(\`UTM Content Magic: Applied \${appliedRules} rule(s) successfully\`);
   };
   
+  // Main init function
   const init = async () => {
     try {
       const params = getUrlParams();
@@ -137,30 +155,12 @@ const ScriptIntegration: React.FC = () => {
       
       console.log('UTM Content Magic: UTM parameters detected', params);
       
-      const apiUrl = \`https://\${PROJECT_ID}.supabase.co/rest/v1/content_rules\`;
-      const queryParams = new URLSearchParams();
+      const apiUrl = \`https://\${PROJECT_ID}.supabase.co/functions/v1/utm-content\`;
+      const queryString = new URLSearchParams(params).toString();
       
-      queryParams.append('active', 'eq.true');
-      
-      if (params.utm_source) {
-        queryParams.append('or', \`(condition_type.eq.utm_source,condition_value.eq.\${params.utm_source})\`);
-      }
-      if (params.utm_medium) {
-        queryParams.append('or', \`(condition_type.eq.utm_medium,condition_value.eq.\${params.utm_medium})\`);
-      }
-      if (params.utm_campaign) {
-        queryParams.append('or', \`(condition_type.eq.utm_campaign,condition_value.eq.\${params.utm_campaign})\`);
-      }
-      if (params.utm_term) {
-        queryParams.append('or', \`(condition_type.eq.utm_term,condition_value.eq.\${params.utm_term})\`);
-      }
-      if (params.utm_content) {
-        queryParams.append('or', \`(condition_type.eq.utm_content,condition_value.eq.\${params.utm_content})\`);
-      }
-      
-      const response = await fetch(\`\${apiUrl}?\${queryParams.toString()}\`, {
+      const response = await fetch(\`\${apiUrl}?\${queryString}\`, {
+        method: 'GET',
         headers: {
-          'apikey': ANON_KEY,
           'Content-Type': 'application/json'
         }
       });
@@ -169,11 +169,10 @@ const ScriptIntegration: React.FC = () => {
         throw new Error(\`HTTP error! status: \${response.status}\`);
       }
       
-      const rules = await response.json();
-      console.log('UTM Content Magic: Received rules:', rules);
+      const data = await response.json();
       
-      if (rules && rules.length > 0) {
-        applyContentRules(rules);
+      if (data.rules && data.rules.length > 0) {
+        applyContentRules(data.rules, params);
       } else {
         console.log('UTM Content Magic: No matching rules found');
       }
@@ -182,6 +181,7 @@ const ScriptIntegration: React.FC = () => {
     }
   };
   
+  // Initialize when DOM is ready
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', init);
   } else {
