@@ -273,7 +273,13 @@ const Index = () => {
               <Card>
                 <CardContent className="flex flex-col items-center justify-center py-12">
                   <p className="text-lg text-gray-500 mb-4">No content rules found</p>
-                  <Button onClick={() => document.querySelector('[data-value="create"]')?.click()}>
+                  <Button onClick={() => {
+                    // Fix: Cast to HTMLElement to use click method
+                    const element = document.querySelector('[data-value="create"]');
+                    if (element) {
+                      (element as HTMLElement).click();
+                    }
+                  }}>
                     <PlusCircle className="mr-2 h-4 w-4" />
                     Create Your First Rule
                   </Button>
