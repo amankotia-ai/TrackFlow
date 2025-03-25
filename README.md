@@ -1,79 +1,85 @@
 # TrackFlow - UTM Tracking & Content Customization Platform
 
-TrackFlow is an advanced platform for tracking UTM parameters, managing marketing campaigns, and customizing content based on user sources. It enables marketers to create intelligent content rules, analyze traffic sources, and optimize campaign performance.
+TrackFlow is an advanced marketing analytics platform that helps track UTM parameters, visualize user journeys, customize content based on traffic sources, and optimize campaign performance. It provides powerful tools for marketers to create dynamic experiences for their visitors based on where they come from.
 
-## Project info
+## Key Features
 
-**URL**: https://lovable.dev/projects/0e54a07e-9c46-4262-85b5-63dc52ea7f9e
+### UTM Tracking & Analytics
+- Comprehensive UTM parameter tracking and analysis
+- Real-time traffic source identification
+- Detailed campaign performance metrics
+- Source attribution and conversion tracking
+- User journey visualization and heatmaps
 
-## Features
+### Content Customization
+- Rule-based content personalization based on UTM parameters
+- Dynamic content swapping for different traffic sources
+- A/B testing capabilities for marketing campaigns
+- Content rule usage analytics
+- Custom element targeting with CSS selectors
 
-- UTM parameter tracking and analytics
-- Content customization rules based on traffic source
-- Campaign management and performance tracking
-- Source analysis and insights
-- Custom script integration for websites
+### Campaign Management
+- Campaign creation and organization
+- Performance tracking and ROI analysis
+- Source-based campaign grouping
+- Campaign comparison analytics
+- Page-level performance insights
 
-## How can I edit this code?
+### Website Integration
+- Easy-to-implement tracking scripts
+- Webflow integration support
+- Content customization script
+- Journey tracking functionality
+- Multiple integration options for different platforms
 
-There are several ways of editing your application.
+### Multi-tenant Architecture
+- Support for multiple websites/domains
+- Organization-level analytics
+- Role-based access control
+- Secure data segregation
 
-**Use Lovable**
+## Tech Stack
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/0e54a07e-9c46-4262-85b5-63dc52ea7f9e) and start prompting.
+TrackFlow is built with modern web technologies:
 
-Changes made via Lovable will be committed automatically to this repo.
+- **Frontend**: React, TypeScript, Vite
+- **UI Components**: shadcn-ui, Tailwind CSS
+- **Backend**: Supabase (PostgreSQL, Edge Functions)
+- **Analytics**: Custom analytics engine with visualization tools
 
-**Use your preferred IDE**
+## Getting Started
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+### Prerequisites
+- Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+- Supabase account (for database and serverless functions)
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
+### Installation
 
 ```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+# Clone the repository
+git clone https://github.com/amankotia-ai/TrackFlow.git
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+# Navigate to the project directory
+cd TrackFlow
 
-# Step 3: Install the necessary dependencies.
-npm i
+# Install the necessary dependencies
+npm install
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
+# Start the development server
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+### Setting Up Supabase
+Check the migration files in `supabase/migrations/` for database schema setup.
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+## Script Integration
 
-**Use GitHub Codespaces**
+To integrate TrackFlow with your website, add the tracking script to your site's `<head>` section. Detailed integration instructions are available in the app's integration section after login.
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+## License
 
-## What technologies are used for this project?
+[MIT License](LICENSE)
 
-This project is built with .
+## Contact
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
-
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/0e54a07e-9c46-4262-85b5-63dc52ea7f9e) and click on Share -> Publish.
-
-## I want to use a custom domain - is that possible?
-
-We don't support custom domains (yet). If you want to deploy your project under your own domain then we recommend using Netlify. Visit our docs for more details: [Custom domains](https://docs.lovable.dev/tips-tricks/custom-domain/)
+For questions or support, please open an issue in this repository.
