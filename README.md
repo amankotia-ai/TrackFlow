@@ -1,8 +1,18 @@
-# Welcome to your Lovable project
+# TrackFlow - UTM Tracking & Content Customization Platform
+
+TrackFlow is an advanced platform for tracking UTM parameters, managing marketing campaigns, and customizing content based on user sources. It enables marketers to create intelligent content rules, analyze traffic sources, and optimize campaign performance.
 
 ## Project info
 
 **URL**: https://lovable.dev/projects/0e54a07e-9c46-4262-85b5-63dc52ea7f9e
+
+## Features
+
+- UTM parameter tracking and analytics
+- Content customization rules based on traffic source
+- Campaign management and performance tracking
+- Source analysis and insights
+- Custom script integration for websites
 
 ## How can I edit this code?
 

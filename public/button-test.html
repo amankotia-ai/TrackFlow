@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>UTM Button Test</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    .test-section {
+      border: 1px solid #ccc;
+      padding: 20px;
+      margin: 20px 0;
+      border-radius: 5px;
+    }
+    .log-container {
+      background: #f5f5f5;
+      padding: 10px;
+      border-radius: 5px;
+      height: 200px;
+      overflow-y: auto;
+      font-family: monospace;
+      font-size: 12px;
+    }
+    .success { color: green; }
+    .error { color: red; }
+    .control-panel {
+      background: #f5f5f5;
+      padding: 20px;
+      border-radius: 5px;
+      margin-bottom: 20px;
+    }
+    button {
+      padding: 8px 16px;
+      margin: 5px;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .test-button {
+      background: #e74c3c;
+      color: white;
+      border: none;
+      font-size: 16px;
+    }
+    .control-button {
+      background: #3498db;
+      color: white;
+      border: none;
+    }
+    input {
+      padding: 8px;
+      margin: 5px;
+      width: 200px;
+    }
+    .email-form-submission {
+      background: #4a6cf7;
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 16px;
+      width: auto;
+    }
+    .w-button {
+      display: inline-block;
+      padding: 9px 15px;
+      background-color: #3898EC;
+      color: white;
+      border: 0;
+      line-height: inherit;
+      text-decoration: none;
+      cursor: pointer;
+      border-radius: 0;
+    }
+  </style>
+</head>
+<body>
+  <h1>UTM Button Test</h1>
+  
+  <div class="control-panel">
+    <h2>Button Selector Test</h2>
+    <div>
+      <input type="text" id="scriptUrl" placeholder="Script URL" style="width: 400px;">
+      <button class="control-button" onclick="loadScript()">1. Load Script</button>
+    </div>
+    <div style="margin-top: 10px;">
+      <input type="text" id="selector" placeholder="CSS Selector (e.g., input.email-form-submission)">
+      <input type="text" id="content" placeholder="New Button Text">
+      <button class="control-button" onclick="testSelector()">2. Test Selector</button>
+    </div>
+  </div>
+  
+  <div class="test-section">
+    <h2>Test Buttons</h2>
+    <p>The following buttons should have their text changed when selected:</p>
+    
+    <div>
+      <button class="test-button">Button One</button>
+      <button class="test-button" id="special-button">Button Two</button>
+      <button class="test-button" disabled>Disabled Button</button>
+    </div>
+  </div>
+  
+  <div class="test-section">
+    <h2>Submit Input Test</h2>
+    <p>The following submit inputs should have their values changed when selected:</p>
+    
+    <div>
+      <input type="submit" data-wait="Please wait..." id="email-form-submission" class="email-form-submission w-button" value="Book a Demo">
+      <input type="submit" class="w-button" value="Start Free Trial">
+      <input type="submit" value="Submit Form">
+    </div>
+  </div>
+  
+  <div class="test-section">
+    <h2>Raw DOM Test</h2>
+    <div>
+      <button class="control-button" onclick="testDirect()">Test Direct DOM (Buttons)</button>
+      <button class="control-button" onclick="testInputs()">Test Direct DOM (Inputs)</button>
+      <input type="text" id="directContent" placeholder="Direct Button Text">
+    </div>
+  </div>
+  
+  <h2>Console Logs</h2>
+  <div class="log-container" id="logContainer"></div>
+  
+  <script>
+    // Custom logger
+    const originalConsoleLog = console.log;
+    const originalConsoleError = console.error;
+    
+    console.log = function() {
+      originalConsoleLog.apply(console, arguments);
+      const logElement = document.createElement('div');
+      logElement.className = 'success';
+      logElement.textContent = Array.from(arguments).join(' ');
+      document.getElementById('logContainer').appendChild(logElement);
+      document.getElementById('logContainer').scrollTop = document.getElementById('logContainer').scrollHeight;
+    };
+    
+    console.error = function() {
+      originalConsoleError.apply(console, arguments);
+      const logElement = document.createElement('div');
+      logElement.className = 'error';
+      logElement.textContent = Array.from(arguments).join(' ');
+      document.getElementById('logContainer').appendChild(logElement);
+      document.getElementById('logContainer').scrollTop = document.getElementById('logContainer').scrollHeight;
+    };
+    
+    function loadScript() {
+      // Remove any existing script
+      const existingScript = document.getElementById('utm-script');
+      if (existingScript) {
+        existingScript.remove();
+      }
+      
+      // Get the script URL
+      const scriptUrl = document.getElementById('scriptUrl').value;
+      if (!scriptUrl) {
+        console.error('Please enter a script URL');
+        return;
+      }
+      
+      // Add cache-busting parameter
+      const url = new URL(scriptUrl);
+      url.searchParams.set('v', Date.now());
+      
+      // Create and add the script
+      const script = document.createElement('script');
+      script.id = 'utm-script';
+      script.src = url.toString();
+      script.onload = () => console.log('Script loaded successfully');
+      script.onerror = () => console.error('Failed to load script');
+      document.head.appendChild(script);
+      
+      console.log(`Loading script from: ${url.toString()}`);
+    }
+    
+    function testSelector() {
+      if (!window.utmContentMagicTestExport) {
+        console.error('UTM Content Magic script not loaded or testing API not available');
+        return;
+      }
+      
+      const selector = document.getElementById('selector').value;
+      const content = document.getElementById('content').value;
+      
+      if (!selector) {
+        console.error('Please enter a CSS selector');
+        return;
+      }
+      
+      if (!content) {
+        console.error('Please enter replacement content');
+        return;
+      }
+      
+      console.log(`Testing selector: "${selector}" with content: "${content}"`);
+      
+      // Test the selector
+      window.utmContentMagicTestExport.applySingleSelector(selector, content);
+    }
+    
+    function testDirect() {
+      const buttons = document.querySelectorAll('button.test-button');
+      const content = document.getElementById('directContent').value || 'Direct Text';
+      
+      console.log(`Testing direct DOM manipulation with ${buttons.length} buttons`);
+      
+      buttons.forEach((button, index) => {
+        try {
+          const originalText = button.textContent;
+          button.textContent = content;
+          console.log(`Button ${index+1}: Changed text from "${originalText}" to "${button.textContent}"`);
+        } catch (error) {
+          console.error(`Button ${index+1}: Error changing text:`, error);
+        }
+      });
+    }
+    
+    function testInputs() {
+      const inputs = document.querySelectorAll('input[type="submit"]');
+      const content = document.getElementById('directContent').value || 'New Submit Text';
+      
+      console.log(`Testing direct DOM manipulation with ${inputs.length} submit inputs`);
+      
+      inputs.forEach((input, index) => {
+        try {
+          const originalValue = input.value;
+          input.value = content;
+          console.log(`Input ${index+1}: Changed value from "${originalValue}" to "${input.value}"`);
+        } catch (error) {
+          console.error(`Input ${index+1}: Error changing value:`, error);
+        }
+      });
+    }
+    
+    // Log page loaded
+    console.log('Button test page loaded at', new Date().toLocaleTimeString());
+  </script>
+</body>
+</html> 

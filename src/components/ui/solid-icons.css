@@ -1,0 +1,12 @@
+/* Styling for solid icons */
+.solid-icon svg {
+  stroke-width: 1.5px;
+  stroke: #6B7280; /* gray-500 for unselected state */
+  fill: #F3EFEA;
+}
+
+.solid-icon-active svg {
+  stroke-width: 2px;
+  stroke: #111827; /* gray-900 for better contrast */
+  fill: none;
+} 

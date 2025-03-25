@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>UTM Content Magic Test Page</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    .test-box {
+      border: 1px solid #ccc;
+      padding: 20px;
+      margin: 20px 0;
+      border-radius: 5px;
+    }
+    .control-panel {
+      background: #f5f5f5;
+      padding: 20px;
+      border-radius: 5px;
+      margin-bottom: 20px;
+    }
+    .btn {
+      background: #4a6cf7;
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .test-button {
+      background: #e74c3c;
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 16px;
+      margin-right: 10px;
+    }
+    .log-container {
+      background: #f5f5f5;
+      padding: 10px;
+      border-radius: 5px;
+      height: 200px;
+      overflow-y: auto;
+      font-family: monospace;
+      font-size: 12px;
+    }
+    .success {
+      color: green;
+    }
+    .error {
+      color: red;
+    }
+    input, select {
+      padding: 8px;
+      margin-right: 10px;
+    }
+    label {
+      display: inline-block;
+      width: 100px;
+    }
+  </style>
+</head>
+<body>
+  <h1>UTM Content Magic Test Page</h1>
+  
+  <div class="control-panel">
+    <h2>Test Controls</h2>
+    <div>
+      <label for="scriptUrl">Script URL:</label>
+      <input type="text" id="scriptUrl" style="width: 400px;">
+      <button class="btn" onclick="loadScript()">Load Script</button>
+    </div>
+    <div style="margin-top: 10px;">
+      <label for="utmParam">UTM Param:</label>
+      <select id="utmType">
+        <option value="utm_source">utm_source</option>
+        <option value="utm_medium">utm_medium</option>
+        <option value="utm_campaign">utm_campaign</option>
+        <option value="utm_term">utm_term</option>
+        <option value="utm_content">utm_content</option>
+      </select>
+      <input type="text" id="utmValue" placeholder="Value">
+      <button class="btn" onclick="addUtmParam()">Add To URL</button>
+    </div>
+    <div style="margin-top: 10px;">
+      <label for="selector">CSS Selector:</label>
+      <input type="text" id="customSelector" placeholder=".test-element or button.test-button" style="width: 220px;">
+      <label for="content">Content:</label>
+      <input type="text" id="customContent" placeholder="New content" style="width: 220px;">
+    </div>
+    <div style="margin-top: 10px;">
+      <button class="btn" onclick="testRule()">Test General Rule</button>
+      <button class="btn" onclick="testCustomSelector()">Test Custom Selector</button>
+      <button class="btn" onclick="clearLogs()">Clear Logs</button>
+    </div>
+  </div>
+
+  <div class="test-box test-element">
+    <h3>Test Content</h3>
+    <p>This is the original content that should be replaced if a matching UTM parameter is found.</p>
+  </div>
+  
+  <div class="test-box">
+    <h3>Button Tests</h3>
+    <p>The following buttons should change their text content when selected:</p>
+    <div style="margin-top: 15px;">
+      <button class="test-button">Original Button Text</button>
+      <button class="test-button" id="special-button">Special Button</button>
+    </div>
+  </div>
+
+  <h2>Console Logs</h2>
+  <div class="log-container" id="logContainer"></div>
+
+  <script>
+    // Create a custom logger
+    const originalConsoleLog = console.log;
+    const originalConsoleError = console.error;
+    
+    console.log = function() {
+      originalConsoleLog.apply(console, arguments);
+      const logElement = document.createElement('div');
+      logElement.className = 'success';
+      logElement.textContent = Array.from(arguments).join(' ');
+      document.getElementById('logContainer').appendChild(logElement);
+      document.getElementById('logContainer').scrollTop = document.getElementById('logContainer').scrollHeight;
+    };
+    
+    console.error = function() {
+      originalConsoleError.apply(console, arguments);
+      const logElement = document.createElement('div');
+      logElement.className = 'error';
+      logElement.textContent = Array.from(arguments).join(' ');
+      document.getElementById('logContainer').appendChild(logElement);
+      document.getElementById('logContainer').scrollTop = document.getElementById('logContainer').scrollHeight;
+    };
+
+    function loadScript() {
+      // Remove any existing script
+      const existingScript = document.getElementById('utm-script');
+      if (existingScript) {
+        existingScript.remove();
+      }
+      
+      // Get the script URL
+      const scriptUrl = document.getElementById('scriptUrl').value;
+      if (!scriptUrl) {
+        console.error('Please enter a script URL');
+        return;
+      }
+      
+      // Add cache-busting parameter
+      const url = new URL(scriptUrl);
+      url.searchParams.set('v', Date.now());
+      
+      // Create and add the script
+      const script = document.createElement('script');
+      script.id = 'utm-script';
+      script.src = url.toString();
+      script.onload = () => console.log('Script loaded successfully');
+      script.onerror = () => console.error('Failed to load script');
+      document.head.appendChild(script);
+      
+      console.log(`Loading script from: ${url.toString()}`);
+    }
+    
+    function addUtmParam() {
+      const utmType = document.getElementById('utmType').value;
+      const utmValue = document.getElementById('utmValue').value;
+      
+      if (!utmValue) {
+        console.error('Please enter a UTM value');
+        return;
+      }
+      
+      // Update the URL
+      const url = new URL(window.location.href);
+      url.searchParams.set(utmType, utmValue);
+      
+      // Update the browser URL without reloading
+      window.history.pushState({}, '', url.toString());
+      
+      console.log(`Added ${utmType}=${utmValue} to URL`);
+    }
+    
+    function testRule() {
+      if (!window.utmContentMagicTestExport) {
+        console.error('UTM Content Magic script not loaded or exposed testing API not available');
+        return;
+      }
+      
+      // Get the current URL parameters
+      const params = {};
+      window.location.search.replace(/[?&]+([^=&]+)=([^&]*)/gi, function(_, key, value) {
+        params[key] = decodeURIComponent(value);
+      });
+      
+      console.log('Current URL parameters:', params);
+      
+      // Create a test rule based on the URL parameters
+      let hasUtmParams = false;
+      const testRules = [];
+      
+      for (const [key, value] of Object.entries(params)) {
+        if (key.startsWith('utm_')) {
+          hasUtmParams = true;
+          testRules.push({
+            name: `Test Rule for ${key}`,
+            condition_type: key,
+            condition_value: value,
+            selector: '.test-element',
+            replacement_content: `<h3>Replaced Content</h3><p>This content was replaced by rule for ${key}=${value}</p>`
+          });
+        }
+      }
+      
+      if (!hasUtmParams) {
+        console.error('No UTM parameters found in URL. Please add some using the controls above.');
+        return;
+      }
+      
+      console.log('Testing with rules:', testRules);
+      
+      // Apply the rules
+      window.utmContentMagicTestExport.applyContentRules(testRules, params);
+    }
+    
+    function testCustomSelector() {
+      if (!window.utmContentMagicTestExport) {
+        console.error('UTM Content Magic script not loaded or exposed testing API not available');
+        return;
+      }
+      
+      const selector = document.getElementById('customSelector').value;
+      const content = document.getElementById('customContent').value;
+      
+      if (!selector) {
+        console.error('Please enter a CSS selector');
+        return;
+      }
+      
+      if (!content) {
+        console.error('Please enter some replacement content');
+        return;
+      }
+      
+      console.log(`Testing custom selector: "${selector}" with content: "${content}"`);
+      
+      // Directly apply the selector
+      window.utmContentMagicTestExport.applySingleSelector(selector, content);
+    }
+    
+    function clearLogs() {
+      document.getElementById('logContainer').innerHTML = '';
+      console.log('Logs cleared');
+    }
+    
+    // Log page loaded
+    console.log('Test page loaded at', new Date().toLocaleTimeString());
+  </script>
+</body>
+</html> 

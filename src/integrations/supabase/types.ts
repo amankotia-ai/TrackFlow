@@ -12,6 +12,7 @@ export type Database = {
       content_rules: {
         Row: {
           active: boolean | null
+          campaign_id: string | null
           condition_type: string
           condition_value: string
           created_at: string | null
@@ -24,6 +25,7 @@ export type Database = {
         }
         Insert: {
           active?: boolean | null
+          campaign_id?: string | null
           condition_type: string
           condition_value: string
           created_at?: string | null
@@ -36,6 +38,7 @@ export type Database = {
         }
         Update: {
           active?: boolean | null
+          campaign_id?: string | null
           condition_type?: string
           condition_value?: string
           created_at?: string | null
@@ -46,7 +49,86 @@ export type Database = {
           selector?: string
           updated_at?: string | null
         }
+        Relationships: [
+          {
+            foreignKeyName: "content_rules_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "campaigns"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
+      pages: {
+        Row: {
+          active: boolean | null
+          created_at: string | null
+          description: string | null
+          id: string
+          name: string
+          updated_at: string | null
+          url: string
+        }
+        Insert: {
+          active?: boolean | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          name: string
+          updated_at?: string | null
+          url: string
+        }
+        Update: {
+          active?: boolean | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          name?: string
+          updated_at?: string | null
+          url?: string
+        }
         Relationships: []
+      }
+      campaigns: {
+        Row: {
+          active: boolean | null
+          created_at: string | null
+          description: string | null
+          id: string
+          name: string
+          page_id: string
+          type: string
+          updated_at: string | null
+        }
+        Insert: {
+          active?: boolean | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          name: string
+          page_id: string
+          type: string
+          updated_at?: string | null
+        }
+        Update: {
+          active?: boolean | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          name?: string
+          page_id?: string
+          type?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "campaigns_page_id_fkey"
+            columns: ["page_id"]
+            isOneToOne: false
+            referencedRelation: "pages"
+            referencedColumns: ["id"]
+          }
+        ]
       }
     }
     Views: {
